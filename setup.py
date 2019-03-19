@@ -33,7 +33,7 @@ setup(name=__pkgname__,
     keywords=['opentargets', 'python2', 'python3'],
     platforms=['any'],
     #make sure this matches requirements.txt
-    install_requires=['requests', 'future'],
+    install_requires=['requests-file', 'future'],
     dependency_links=[],
     include_package_data=True,
     data_files=[],
@@ -43,6 +43,7 @@ setup(name=__pkgname__,
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3'
     ],
-    #make sure this matches requirements.txt
-    extras_require={'dev': ['pytest-cov','codecov']}
+    #make sure this matches requirements.dev.txt
+    extras_require={'dev': ['pytest>=4.0.0,<4.1.0',
+        'pytest-cov', 'pylint', 'tox', 'codecov', 'pipdeptree']}
 )

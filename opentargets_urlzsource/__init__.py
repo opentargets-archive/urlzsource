@@ -3,9 +3,10 @@ from builtins import object
 import functools
 from contextlib import contextmanager
 import gzip
-import zipfile
+from zipfile import ZipFile
 import tempfile
 import logging
+from io import TextIOWrapper
 
 import requests 
 import requests_file
@@ -50,11 +51,22 @@ class URLZSource(object):
             open_f = functools.partial(gzip.open, mode='rb')
 
         elif filename.endswith('.zip'):
-            zipped_data = zipfile.ZipFile(filename)
-            info = zipped_data.getinfo(zipped_data.filelist[0].orig_filename)
+            zipped_data = ZipFile(filename)
+            
+            if len(zipped_data.filelist) > 1:
+                raise IOError("more than one file in "+file)
+            if len(zipped_data.filelist) == 0:
+                raise IOError("no file in "+file)
 
+            #get the filename of the single file inside the zip
+            info = zipped_data.getinfo(zipped_data.filelist[0].orig_filename)
             filename = info
-            open_f = functools.partial(zipped_data.open)
+
+            def open_internal(filename, zipped_data):
+                return TextIOWrapper(zipped_data.open(filename))
+
+            open_f = functools.partial(open_internal, zipped_data=zipped_data)
+
         else:
             open_f = functools.partial(open, mode='r')
 

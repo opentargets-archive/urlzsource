@@ -1,1 +1,0 @@
-from opentargets_urlzsource import URLZSource

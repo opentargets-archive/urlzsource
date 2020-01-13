@@ -1,3 +1,5 @@
+"""Open URL-referenced files; see the URLZSource class for more details."""
+
 from builtins import object
 
 import functools
@@ -11,27 +13,31 @@ from io import TextIOWrapper
 import requests 
 import requests_file
 
+
 def urllify(string_name):
-    """return a file:// urlified simple path to a file:// is :// is not contained in it"""
+    """Prefix file:// to paths that do not already contain ://."""
     return string_name if '://' in string_name else 'file://' + string_name
 
 
 class URLZSource(object):
-    def __init__(self, filename, *args, **kwargs):
-        """Easy way to open multiple types of URL protocol (e.g. http:// and file://)
-        as well as handling compressed content (e.g. .gz or .zip) if appropriate.
+    """Transparent way to open local, URL-referenced and/or compressed files.
 
-        Just in case you need to use proxies for url use it as normal
+    Can handle multiple types of URL scheme (e.g. http:// and file://),
+    as well as compressed content (e.g. .gz or .zip) if appropriate.
+    """
+
+    def __init__(self, filename, *args, **kwargs):
+        """Set the parameters of the file source to access.
+
+        In case you need to use proxies for url use it as normal
         named arguments to requests.
 
-        >>> # proxies = {}
-        >>> # if Config.HAS_PROXY:
-        ...    # self.proxies = {"http": Config.PROXY,
-        ...                      # "https": Config.PROXY}
-        >>> # with URLZSource('http://var.foo/noname.csv',proxies=proxies).open() as f:
-
+        >>> proxies = {}
+        >>> if Config.HAS_PROXY:
+        ...    self.proxies = {"http": Config.PROXY,
+        ...                    "https": Config.PROXY}
+        >>> with URLZSource('http://var.foo/noname.csv',proxies=proxies).open() as f:
         """
-
         self.logger = logging.getLogger(__name__)
 
         self.filename = urllify(filename)
@@ -40,11 +46,7 @@ class URLZSource(object):
 
     @contextmanager
     def _open_local(self, filename, mode):
-        """
-        This is an internal function to handle opening the temporary file 
-        that the URL has been downloaded to, including handling compression
-        if appropriate
-        """
+        """Open a local file, handling compression if appropriate."""
         open_f = None
 
         if filename.endswith('.gz') or filename.endswith('.gzip'):
@@ -75,11 +77,7 @@ class URLZSource(object):
 
     @contextmanager
     def open(self, mode='r'):
-        """
-        This downloads the URL to a temporary file, naming the file
-        based on the URL. 
-        """
-
+        """Open the file for reading, buffering to a tempfile if needed."""
         if self.filename.startswith('ftp://'):
             raise NotImplementedError('finish ftp')
 

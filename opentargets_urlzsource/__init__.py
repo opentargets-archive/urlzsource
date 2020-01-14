@@ -9,8 +9,9 @@ from zipfile import ZipFile
 import tempfile
 import logging
 from io import TextIOWrapper
+import warnings
 
-import requests 
+import requests
 import requests_file
 
 
@@ -45,7 +46,7 @@ class URLZSource(object):
         self.kwargs = kwargs
 
     @contextmanager
-    def _open_local(self, filename, mode):
+    def _open_local(self, filename):
         """Open a local file, handling compression if appropriate."""
         open_f = None
 
@@ -76,15 +77,20 @@ class URLZSource(object):
             yield fd
 
     @contextmanager
-    def open(self, mode='r'):
+    def open(self, mode=None):
         """Open the file for reading, buffering to a tempfile if needed."""
+        if mode is not None:
+            warnings.warn(
+                'Note that URLZSource.open() ignores its mode= arg',
+                DeprecationWarning)
+
         if self.filename.startswith('ftp://'):
             raise NotImplementedError('finish ftp')
 
         elif self.filename.startswith('file://'):
             #if its already a file, we can handle it directly
             file_to_open = self.filename[7:]
-            with self._open_local(file_to_open, mode) as fd:
+            with self._open_local(file_to_open) as fd:
                 yield fd
         else:
             file_to_open = None
@@ -111,5 +117,5 @@ class URLZSource(object):
                     for block in f.iter_content(1024):
                         fd.write(block)
 
-            with self._open_local(file_to_open, mode) as fd:
+            with self._open_local(file_to_open) as fd:
                 yield fd

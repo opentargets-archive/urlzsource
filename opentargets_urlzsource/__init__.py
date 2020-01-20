@@ -48,7 +48,7 @@ class URLZSource(object):
         open_f = None
 
         if filename.endswith('.gz') or filename.endswith('.gzip'):
-            open_f = functools.partial(gzip.open, mode='rb')
+            open_f = functools.partial(gzip.open, mode='rt')
 
         elif filename.endswith('.zip'):
             zipped_data = ZipFile(filename)

@@ -44,6 +44,6 @@ setup(name=__pkgname__,
         'Programming Language :: Python :: 3'
     ],
     #make sure this matches requirements.dev.txt
-    extras_require={'dev': ['pytest>=4.0.0,<4.1.0',
+    extras_require={'dev': ['pytest',
         'pytest-cov', 'pylint', 'tox', 'codecov', 'pipdeptree']}
 )
